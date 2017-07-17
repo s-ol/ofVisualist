@@ -1,0 +1,4 @@
+bin/ofVisualist*
+bin/*.so
+obj
+*.mp4
