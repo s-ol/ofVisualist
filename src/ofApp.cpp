@@ -10,19 +10,19 @@ void ofApp::setup() {
   ofSetVerticalSync(false);
 
   vector<ofVideoDevice> devices = vidGrabber.listDevices();
-  
+
   for (int i = 0; i < devices.size(); i++) {
-      if (devices[i].bAvailable) {
-          ofLogNotice() << devices[i].id << ": " << devices[i].deviceName;
-          ofLogNotice() << "formats: " << devices[i].formats.size();
-          for (int f = 0; f < devices[i].formats.size(); f++) {
-            auto format = devices[i].formats[f];
-            ofLogNotice() << "- " << format.width << "x" << format.height << " f " << format.framerates[0];
-          }
-      } else {
-          //log the device and note it as unavailable
-          ofLogNotice() << devices[i].id << ": " << devices[i].deviceName << " - unavailable ";
+    if (devices[i].bAvailable) {
+      ofLogNotice() << devices[i].id << ": " << devices[i].deviceName;
+      ofLogNotice() << "formats: " << devices[i].formats.size();
+      for (int f = 0; f < devices[i].formats.size(); f++) {
+        auto format = devices[i].formats[f];
+        ofLogNotice() << "- " << format.width << "x" << format.height << " f " << format.framerates[0];
       }
+    } else {
+      //log the device and note it as unavailable
+      ofLogNotice() << devices[i].id << ": " << devices[i].deviceName << " - unavailable ";
+    }
   }
 
   vidGrabber.setDeviceID(0);
@@ -42,7 +42,7 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	ofBackground(0, 0, 0);
+  ofBackground(0, 0, 0);
   vidGrabber.update();
   if (!paused)
     time += speed * ofGetLastFrameTime() * COLOR_STEPS;
@@ -51,7 +51,7 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
   ofSetHexColor(0xffffff);
-  
+
   vidGrabber.getTextureReference().bind();
 
   shader.begin();
@@ -95,11 +95,11 @@ void ofApp::exit() {
 
 void ofApp::keyPressed(int key) {
   if (key != 'r') return;
-  midiIn->closePort();
-  midiIn->removeListener(this);
+    midiIn->closePort();
+      midiIn->removeListener(this);
 
-  midiIn = new ofxMidiIn();
+      midiIn = new ofxMidiIn();
   midiIn->openPort(0);
-  midiIn->addListener(this);  // setup();
+  midiIn->addListener(this);
   ofLogNotice() << "restarted";
 }
