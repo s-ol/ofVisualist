@@ -1,43 +1,36 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxMidi.h"
 
 #define COLOR_STEPS 8
+#define CAPTURE_RES 720,576
+#define SCREEN_RES 1920,1080
 
-class ofApp : public ofBaseApp{
-
+class ofApp : public ofBaseApp, public ofxMidiListener {
   public:
-
     void setup();
     void update();
     void draw();
-
+    void exit();
     void keyPressed(int key);
-    void keyReleased(int key);
-    void mouseMoved(int x, int y );
-    void mouseDragged(int x, int y, int button);
-    void mousePressed(int x, int y, int button);
-    void mouseReleased(int x, int y, int button);
-    void mouseEntered(int x, int y);
-    void mouseExited(int x, int y);
-    void windowResized(int w, int h);
-    void dragEvent(ofDragInfo dragInfo);
-    void gotMessage(ofMessage msg);		
 
-    ofVideoPlayer       fingerMovie;
-    bool                frameByframe;
-    float               speed = 100.0f;
-    float               offset;
-    ofColor             colors[COLOR_STEPS]; /* = {
-       0x6C698D,
-       0xB8D8BA,
-       0xFF99C8,
-       0xA0D2DB,
-       0xE0D8DE,
-       0xFE654F,
-       0xFED18C,
-       0xD6EFFF,
-       0xFFEDB5,
-     }; */
+    void newMidiMessage(ofxMidiMessage& eventArgs);
+
+    float               speed  = 0.1f;
+    float               time   = 0.0f;
+    float               offset = 0.0f;
+    float               colMix = 0.5f;
+    float               lumMix = 0.5f;
+    float               lumOff = 0.0f;
+    float               lumTLo = 0.0f;
+    float               lumTHi = 1.0f;
+    bool                stepMode = false;
+    bool                paused = false;
+
+    ofxMidiIn*          midiIn;
+    ofFloatColor        colors[COLOR_STEPS];
+    ofVideoGrabber      vidGrabber;
+    ofShader            shader;
+    ofPlanePrimitive    plane;
 };
-

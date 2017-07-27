@@ -1,152 +1,105 @@
 #include "ofApp.h"
 
 //--------------------------------------------------------------
-void ofApp::setup(){
+void ofApp::setup() {
   for (int i = 0; i < COLOR_STEPS; ++i) {
-    colors[i] = ofColor::fromHsb(255, 180, 75 + (i * (float) 177) / COLOR_STEPS);
+    colors[i] = ofFloatColor::fromHsb((float)i / COLOR_STEPS, 0.6, 0.6);
   };
 
-  ofBackground(255,255,255);
-  ofSetVerticalSync(true);
-  frameByframe = false;
+  ofBackground(255, 255, 255);
+  ofSetVerticalSync(false);
 
-  // Uncomment this to show movies with alpha channels
-  // fingerMovie.setPixelFormat(OF_PIXELS_RGBA);
+  vector<ofVideoDevice> devices = vidGrabber.listDevices();
+  
+  for (int i = 0; i < devices.size(); i++) {
+      if (devices[i].bAvailable) {
+          ofLogNotice() << devices[i].id << ": " << devices[i].deviceName;
+          ofLogNotice() << "formats: " << devices[i].formats.size();
+          for (int f = 0; f < devices[i].formats.size(); f++) {
+            auto format = devices[i].formats[f];
+            ofLogNotice() << "- " << format.width << "x" << format.height << " f " << format.framerates[0];
+          }
+      } else {
+          //log the device and note it as unavailable
+          ofLogNotice() << devices[i].id << ": " << devices[i].deviceName << " - unavailable ";
+      }
+  }
 
-  fingerMovie.load("movies/fingers.mov");
-  fingerMovie.setLoopState(OF_LOOP_NORMAL);
-  fingerMovie.play();
+  vidGrabber.setDeviceID(0);
+  vidGrabber.setDesiredFrameRate(30);
+  vidGrabber.initGrabber(CAPTURE_RES);
+  shader.load("shader");
+
+  plane.set(SCREEN_RES, 10, 10);
+  plane.mapTexCoords(0, 0, vidGrabber.getWidth(), vidGrabber.getHeight());
+  plane.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 0);
+
+  midiIn = new ofxMidiIn();
+  midiIn->listPorts();
+  midiIn->openPort(0);
+  midiIn->addListener(this);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-  fingerMovie.update();
+	ofBackground(0, 0, 0);
+  vidGrabber.update();
+  if (!paused)
+    time += speed * ofGetLastFrameTime() * COLOR_STEPS;
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+  ofSetHexColor(0xffffff);
+  
+  vidGrabber.getTextureReference().bind();
 
-  ofSetHexColor(0xFFFFFF);
-  fingerMovie.draw(20,20);
+  shader.begin();
+  shader.setUniform4fv("colors", (float*)colors, 8);
+  shader.setUniform1f("offset", time + offset);
+  shader.setUniform1f("colMix", colMix);
+  shader.setUniform1f("lumMix", lumMix);
+  shader.setUniform1f("lumOff", lumOff);
+  shader.setUniform1f("lumTLo", lumTLo);
+  shader.setUniform1f("lumTHi", lumTHi);
+  shader.setUniform1i("stepMode", stepMode ? 1 : 0);
+  plane.draw();
+  shader.end();
+  vidGrabber.getTextureReference().unbind();
+}
 
-  ofSetHexColor(0x000000);
-  ofPixels & pixels = fingerMovie.getPixels();
-
-  int vidWidth = pixels.getWidth();
-  int vidHeight = pixels.getHeight();
-  int nChannels = pixels.getNumChannels();
-
-  offset += speed * ofGetLastFrameTime() * COLOR_STEPS;
-
-  // let's move through the "RGB(A)" char array
-  // using the red pixel to control the size of a circle.
-  for (int i = 4; i < vidWidth; ++i){
-    for (int j = 4; j < vidHeight; ++j){
-      unsigned char *pix = &pixels[(j * 320 + i)*nChannels];
-      float luminance = (pix[0] / 256.0f * 0.3f) + (pix[1] / 256.0f * 0.59f) + (pix[2] / 256.0f * 0.11f);
-      unsigned char index = luminance * COLOR_STEPS;
-      ofSetHexColor(colors[(index + (int)offset) % COLOR_STEPS].getHex());
-      ofDrawLine(400 + i, 20 + j, 400 + i, 21 + j);
+void ofApp::newMidiMessage(ofxMidiMessage& msg) {
+  if (msg.status == MIDI_CONTROL_CHANGE) {
+    float value = msg.value / 127.0f;
+    float cent = (msg.value - 64) / 64.0f;;
+    switch (msg.control) {
+      case 27: lumMix = value; break;
+      case 28: colMix = value; break;
+      case 41: lumTLo = value; break;
+      case 42: lumTHi = value; break;
+      case 43: lumOff = value; break;
+      case 47: speed = cent * 5; break;
+      case 48: offset = cent * 2; break;
+    }
+  } else if (msg.status == MIDI_NOTE_ON) {
+    switch (msg.pitch) {
+      case 9: paused = !paused; break;
+      case 10: stepMode = !stepMode; break;
     }
   }
-
-  ofSetHexColor(0x000000);
-  ofDrawBitmapString("press f to change",20,320);
-  if(frameByframe) ofSetHexColor(0xCCCCCC);
-  ofDrawBitmapString("mouse speed position",20,340);
-  if(!frameByframe) ofSetHexColor(0xCCCCCC); else ofSetHexColor(0x000000);
-  ofDrawBitmapString("keys <- -> frame by frame " ,190,340);
-  ofSetHexColor(0x000000);
-
-  ofDrawBitmapString("frame: " + ofToString(fingerMovie.getCurrentFrame()) + "/"+ofToString(fingerMovie.getTotalNumFrames()),20,380);
-  ofDrawBitmapString("duration: " + ofToString(fingerMovie.getPosition()*fingerMovie.getDuration(),2) + "/"+ofToString(fingerMovie.getDuration(),2),20,400);
-  ofDrawBitmapString("speed: " + ofToString(speed,2),20,420);
-  ofDrawBitmapString("offset: " + ofToString(offset,2),20,440);
-
-  if(fingerMovie.getIsMovieDone()){
-    ofSetHexColor(0xFF0000);
-    ofDrawBitmapString("end of movie",20,440);
-  }
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed  (int key){
-  switch(key){
-    case 'f':
-      frameByframe=!frameByframe;
-      fingerMovie.setPaused(frameByframe);
-      break;
-    case OF_KEY_LEFT:
-      fingerMovie.previousFrame();
-      break;
-    case OF_KEY_RIGHT:
-      fingerMovie.nextFrame();
-      break;
-    case '0':
-      fingerMovie.firstFrame();
-      break;
-  }
+void ofApp::exit() {
 }
 
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
+void ofApp::keyPressed(int key) {
+  if (key != 'r') return;
+  midiIn->closePort();
+  midiIn->removeListener(this);
 
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-  if(!frameByframe){
-    int width = ofGetWidth();
-    float pct = (float)x / (float)width;
-    speed = (pct - 0.5) * 10;
-  }
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-  if(!frameByframe){
-    int width = ofGetWidth();
-    float pct = (float)x / (float)width;
-    fingerMovie.setPosition(pct);
-  }
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-  if(!frameByframe){
-    fingerMovie.setPaused(true);
-  }
-}
-
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-  if(!frameByframe){
-    fingerMovie.setPaused(false);
-  }
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){
-
+  midiIn = new ofxMidiIn();
+  midiIn->openPort(0);
+  midiIn->addListener(this);  // setup();
+  ofLogNotice() << "restarted";
 }
