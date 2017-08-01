@@ -7,7 +7,7 @@
 #define CAPTURE_RES 720,576
 #define SCREEN_RES 1920,1080
 
-class ofApp : public ofBaseApp, public ofxMidiListener {
+class EffectApp : public ofBaseApp, public ofxMidiListener {
   public:
     void setup();
     void update();

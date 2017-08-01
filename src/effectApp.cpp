@@ -1,7 +1,7 @@
-#include "ofApp.h"
+#include "effectApp.h"
 
 //--------------------------------------------------------------
-void ofApp::setup() {
+void EffectApp::setup() {
   for (int i = 0; i < COLOR_STEPS; ++i) {
     colors[i] = ofFloatColor::fromHsb((float)i / COLOR_STEPS, 0.6, 0.6);
   };
@@ -43,7 +43,7 @@ void ofApp::setup() {
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void EffectApp::update(){
   ofBackground(0, 0, 0);
   vidGrabber.update();
   if (!paused)
@@ -51,7 +51,7 @@ void ofApp::update(){
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
+void EffectApp::draw(){
   ofSetHexColor(0xffffff);
 
   vidGrabber.getTexture().bind();
@@ -69,7 +69,7 @@ void ofApp::draw(){
   vidGrabber.getTexture().unbind();
 }
 
-void ofApp::newMidiMessage(ofxMidiMessage& msg) {
+void EffectApp::newMidiMessage(ofxMidiMessage& msg) {
   if (msg.status == MIDI_CONTROL_CHANGE) {
     float value = msg.value / 127.0f;
     float cent = (msg.value - 64) / 64.0f;;
@@ -91,10 +91,10 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
 }
 
 //--------------------------------------------------------------
-void ofApp::exit() {
+void EffectApp::exit() {
 }
 
-void ofApp::keyPressed(int key) {
+void EffectApp::keyPressed(int key) {
   if (key != 'r') return;
     midiIn->closePort();
       midiIn->removeListener(this);
