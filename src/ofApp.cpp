@@ -34,10 +34,12 @@ void ofApp::setup() {
   plane.mapTexCoords(0, 0, vidGrabber.getWidth(), vidGrabber.getHeight());
   plane.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 0);
 
+  /*
   midiIn = new ofxMidiIn();
   midiIn->listPorts();
   midiIn->openPort(0);
   midiIn->addListener(this);
+  */
 }
 
 //--------------------------------------------------------------
@@ -52,8 +54,7 @@ void ofApp::update(){
 void ofApp::draw(){
   ofSetHexColor(0xffffff);
 
-  vidGrabber.getTextureReference().bind();
-
+  vidGrabber.getTexture().bind();
   shader.begin();
   shader.setUniform4fv("colors", (float*)colors, 8);
   shader.setUniform1f("offset", time + offset);
@@ -65,7 +66,7 @@ void ofApp::draw(){
   shader.setUniform1i("stepMode", stepMode ? 1 : 0);
   plane.draw();
   shader.end();
-  vidGrabber.getTextureReference().unbind();
+  vidGrabber.getTexture().unbind();
 }
 
 void ofApp::newMidiMessage(ofxMidiMessage& msg) {
