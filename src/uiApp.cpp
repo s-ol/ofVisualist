@@ -33,5 +33,4 @@ void UiApp::keyPressed(int key) {
       ofRunApp(outputWindow, effect);
     }
   }
-  ofLogNotice() << "restarted";
 }

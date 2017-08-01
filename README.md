@@ -7,12 +7,12 @@ The first Camera found on the system is used to stream data, and the first MIDI 
 
 MIDI controls
 -------------
-- CC27: mix alpha channel between 1.0 and time-rotated luminosity as alpha
-- CC28: mix RGB channels between source video and time-rotated hue based on pixel luminosity
-- CC41, CC42: lower end and width of the luminosity scale.
-- CC43: alpha offset for CC27, lightens an image with dark shadows.
-- CC47: time-rotation speed (from fast backwards to fast forward)
-- CC48: manual rotation offset, useful when paused
+- CC27 (`0x1B`): mix alpha channel between 1.0 and time-rotated luminosity as alpha
+- CC28 (`0x1C`): mix RGB channels between source video and time-rotated hue based on pixel luminosity
+- CC41, CC42 (`0x29-2A`): lower end and width of the luminosity scale.
+- CC43 (`0x2B`): alpha offset for CC27, lightens an image with dark shadows.
+- CC47 (`0x2F`): time-rotation speed (from fast backwards to fast forward)
+- CC48 (`0x30`): manual rotation offset, useful when paused
 - NoteOn 9: Play/Pause time-rotation
 
 [of]: https://openframeworks.cc/documentation/

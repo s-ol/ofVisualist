@@ -4,14 +4,14 @@
 
 int main(int argc, const char** argv) {
   shared_ptr<EffectApp> effect = nullptr;
-  if (argc == 3) {
+  shared_ptr<ofAppBaseWindow> outputWindow = nullptr;
+  if (true || argc == 3) {
     ofGLWindowSettings outputSettings;
     outputSettings.setGLVersion(3, 0);
-    outputSettings.width = atoi(argv[1]);
-    outputSettings.height = atoi(argv[2]);
-    outputSettings.windowMode = OF_FULLSCREEN;
-    ofLogNotice() << outputSettings.width << "x" << outputSettings.height;
-    auto outputWindow = ofCreateWindow(outputSettings);
+    outputSettings.width = 1920;
+    outputSettings.height = 1080;
+    outputSettings.windowMode = OF_WINDOW;
+    outputWindow = ofCreateWindow(outputSettings);
     effect = make_shared<EffectApp>();
     ofRunApp(outputWindow, effect);
   }

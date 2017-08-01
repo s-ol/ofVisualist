@@ -34,12 +34,10 @@ void EffectApp::setup() {
   plane.mapTexCoords(0, 0, vidGrabber.getWidth(), vidGrabber.getHeight());
   plane.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 0);
 
-  /*
-  midiIn = new ofxMidiIn();
+  midiIn = new ofxMidiIn("ofVisualist", OFXMIDI_UNIX_JACK);
   midiIn->listPorts();
   midiIn->openPort(0);
   midiIn->addListener(this);
-  */
 }
 
 //--------------------------------------------------------------
@@ -92,6 +90,7 @@ void EffectApp::newMidiMessage(ofxMidiMessage& msg) {
 
 //--------------------------------------------------------------
 void EffectApp::exit() {
+  ofExit();
 }
 
 void EffectApp::keyPressed(int key) {
