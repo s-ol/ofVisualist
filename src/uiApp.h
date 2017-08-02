@@ -1,21 +1,26 @@
 #pragma once
 
 #include "ofMain.h"
-#include "effectApp.h"
-
-#define COLOR_STEPS 8
-#define CAPTURE_RES 720,576
-#define SCREEN_RES 1920,1080
+#include "ofxGui.h"
+// #include "effectApp.h"
+#include "videosource.h"
+#include "farbblut.h"
 
 class UiApp : public ofBaseApp {
   public:
-    UiApp(shared_ptr<EffectApp> effect);
+//    UiApp(shared_ptr<EffectApp> effect);
+    UiApp();
     void setup();
     void update();
     void draw();
     void exit();
+    void windowResized(int w, int h);
     void keyPressed(int key);
 
   protected:
-    shared_ptr<EffectApp> effect;
+//     shared_ptr<EffectApp> effect;
+    ofPlanePrimitive      preview;
+    ofxPanel              panel;
+    Farbblut              farbblut;
+    IVideoSource*         source;
 };

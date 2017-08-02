@@ -8,9 +8,9 @@ uniform float offset;
 uniform float colMix;
 uniform float lumMix;
 uniform float lumOff;
-uniform float lumTLo;
-uniform float lumTHi;
-uniform int stepMode;
+uniform float lumBse;
+uniform float bandSt;
+uniform float bandWt;
 
 out vec4 outputColor;
 
@@ -18,13 +18,11 @@ vec3 L = vec3(0.2125, 0.7154, 0.0721);
 
 void main() {
   vec3 sample = texture(tex0, texCoordVarying).rgb;
-  float lum = (dot(L, sample) - lumTLo) / lumTHi;
-  int index = int(lum * 8 + offset) % 8;
-  if (stepMode == 1)
-    int(lum * 8 + floor(offset)/10) % 8;
-  vec3 recol = colors[index].rgb;
+  float lum = (dot(L, sample) - bandSt) / bandWt;
+  float base = lum * 8 + offset;
 
-  float alpha = float(index)/8.0 + lumOff;
+  vec3 recol = colors[int(base) % 8].rgb;
+  float alpha = (int(base + lumOff * 8) % 8)/8.0 + lumBse;
 
   outputColor = vec4(mix(sample, recol, colMix), mix(1.0, alpha, lumMix));
 }
