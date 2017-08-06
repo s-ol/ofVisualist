@@ -11,6 +11,19 @@ UiApp::UiApp()
 
 void UiApp::setup() {
   panel.setup(farbblut.parameters);
+
+  midiIn = new ofxMidiIn("ofVisualist", OFXMIDI_UNIX_JACK);
+  midiIn->openPort(0);
+  mapper = new MidiMapper(midiIn, farbblut.parameters, {
+    { 0x01, "offset" },
+    { 0x02, "speed" },
+    { 0x0c, "colorMix" },
+    { 0x0d, "luminanceMix" },
+    { 0x10, "luminanceOffset" },
+    { 0x11, "luminanceBase" },
+    { 0x12, "bandStart" },
+    { 0x13, "bandWidth" },
+  });
 }
 
 void UiApp::update(){
