@@ -6,7 +6,6 @@ UiApp::UiApp()
   : ofBaseApp(), preview(ofGetWidth() - 220, ofGetHeight(), 10, 10) {
   preview.mapTexCoords(0, 0, 800, 600);
   preview.setPosition((ofGetWidth() + 220) / 2, ofGetHeight() / 2, 0);
-  source = new ExternalVideoSource();
 }
 
 void UiApp::setup() {
@@ -14,6 +13,8 @@ void UiApp::setup() {
 
   midiIn = new ofxMidiIn("ofVisualist", OFXMIDI_UNIX_JACK);
   midiIn->openPort(0);
+  midiIn->ignoreTypes(false, false, false);
+
   mapper = new MidiMapper(midiIn, farbblut.parameters, {
     { 0x01, "offset" },
     { 0x02, "speed" },
@@ -24,6 +25,9 @@ void UiApp::setup() {
     { 0x12, "bandStart" },
     { 0x13, "bandWidth" },
   });
+
+  // source = new ExternalVideoSource();
+  source = new SyncedVideoSource("movies/fingers.mov", midiIn);
 }
 
 void UiApp::update(){
