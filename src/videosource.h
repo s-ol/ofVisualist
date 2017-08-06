@@ -9,6 +9,7 @@ struct SMPTETime {
   int seconds;
   int frames;
   int numFrames = 30;
+
   void updateNumFrames() {
     switch (hours >> 5) {
       case 0: numFrames = 24; break;
@@ -25,9 +26,14 @@ struct SMPTETime {
     }
     hours &= 0x1f;
   };
-  void trace(string ref) {
-    ofLogNotice(ref) << hours << ":" << minutes << ":" << seconds << ":" << frames << " (" << numFrames << ")";
+
+  void trace() {
+    ofLogNotice() << hours << ":" << minutes << ":" << seconds << ":" << frames << " (" << numFrames << ")";
   };
+
+  operator float() const {
+    return hours * 3600 + minutes * 60 + seconds + (float) frames / numFrames;
+  }
 };
 
 class IVideoSource {

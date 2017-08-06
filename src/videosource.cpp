@@ -18,18 +18,23 @@ ofTexture& ExternalVideoSource::getTexture() {
 
 SyncedVideoSource::SyncedVideoSource(string filename, ofxMidiIn* midiIn) {
   player.load(filename);
+  player.setLoopState(OF_LOOP_NORMAL);
   player.play();
   midiIn->addListener(this);
 }
 
 void SyncedVideoSource::update() {
-  /*
-  float time =  hr * 60.0f * 60.0f +
-            mn * 60.0f +
-            sc +
-            fr * 0.04f;
-            */
+  float delta = target - player.getPosition() * player.getDuration();
+  target.trace();
 
+  if (delta > 0.3f || delta < -0.3f) {
+    ofLogNotice("JUMP") << (float)target << " - " << (player.getPosition() * player.getDuration()) << " / ";
+    player.setSpeed(1.0f);
+    player.setPosition(target / player.getDuration());
+  } else if (delta > 0.05f || delta < -0.05f) {
+    ofLogNotice("speed") << 1 + delta / 10.0f;
+    player.setSpeed(1 + delta / 10.0f);
+  }
   player.update();
 }
 
@@ -43,10 +48,10 @@ void SyncedVideoSource::newMidiMessage(ofxMidiMessage& msg) {
     case MIDI_START:
       player.firstFrame();
     case MIDI_CONTINUE:
-      player.play();
+      player.setPaused(false);
       break;
     case MIDI_STOP:
-      player.stop();
+      player.setPaused(true);
       break;
     case MIDI_TIME_CODE: {
       int index       = msg.bytes[1] >> 4;
@@ -70,15 +75,15 @@ void SyncedVideoSource::newMidiMessage(ofxMidiMessage& msg) {
       }
 
       switch (index) {
-        case 0x0: target.frames    = value; break;
-        case 0x1: target.frames   |= value << 4; break;
-        case 0x2: target.seconds   = value; break;
-        case 0x3: target.seconds  |= value << 4; break;
-        case 0x4: target.minutes   = value; break;
-        case 0x5: target.minutes  |= value << 4; break;
-        case 0x6: target.hours     = value; break;
+        case 0x0: target.frames   = (target.frames  & 0xF0) | value; break;
+        case 0x2: target.seconds  = (target.seconds & 0xF0) | value; break;
+        case 0x4: target.minutes  = (target.minutes & 0xF0) | value; break;
+        case 0x6: target.hours    = (target.hours   & 0xF0) | value; break;
+        case 0x1: target.frames   = (target.frames  & 0x0F) | value << 4; break;
+        case 0x3: target.seconds  = (target.seconds & 0x0F) | value << 4; break;
+        case 0x5: target.minutes  = (target.minutes & 0x0F) | value << 4; break;
         case 0x7:
-          target.hours |= value << 4;
+          target.hours = (target.hours & 0x0F) | value << 4;
           target.updateNumFrames();
           break;
         default: break;

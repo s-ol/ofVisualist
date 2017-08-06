@@ -27,7 +27,7 @@ void UiApp::setup() {
   });
 
   // source = new ExternalVideoSource();
-  source = new SyncedVideoSource("movies/fingers.mov", midiIn);
+  source = new SyncedVideoSource("movies/bulbform.avi", midiIn);
 }
 
 void UiApp::update(){
