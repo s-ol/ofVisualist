@@ -25,14 +25,13 @@ SyncedVideoSource::SyncedVideoSource(string filename, ofxMidiIn* midiIn) {
 
 void SyncedVideoSource::update() {
   float delta = target - player.getPosition() * player.getDuration();
-  target.trace();
 
   if (delta > 0.3f || delta < -0.3f) {
-    ofLogNotice("JUMP") << (float)target << " - " << (player.getPosition() * player.getDuration()) << " / ";
+    ofLogNotice("out of sync") << (float)target << " vs " << (player.getPosition() * player.getDuration());
     player.setSpeed(1.0f);
     player.setPosition(target / player.getDuration());
   } else if (delta > 0.05f || delta < -0.05f) {
-    ofLogNotice("speed") << 1 + delta / 10.0f;
+    ofLogNotice("adjusting speed") << 1 + delta / 10.0f;
     player.setSpeed(1 + delta / 10.0f);
   }
   player.update();
@@ -56,9 +55,8 @@ void SyncedVideoSource::newMidiMessage(ofxMidiMessage& msg) {
     case MIDI_TIME_CODE: {
       int index       = msg.bytes[1] >> 4;
       int value       = msg.bytes[1] & 0x0F;
-      bool freshFrame = index % 8 == 0;
 
-      if (freshFrame) {
+      if (index % 4 == 0) {
         target.frames++;
         if (target.frames >= target.numFrames) {
           target.frames %= target.numFrames;
