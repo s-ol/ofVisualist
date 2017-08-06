@@ -1,5 +1,6 @@
 bin/ofVisualist*
 bin/*.so
 bin/data/settings.xml
+bin/data/movies
 obj
 *.mp4
