@@ -3,6 +3,8 @@
 Farbblut::Farbblut() {
   shader.load("shader");
 
+  time.set(0);
+  
   parameters.setName("Farbblut");
   parameters.add(speed.set("speed", 0, -5, 5));
   parameters.add(offset.set("offset", 0, 0, 1));

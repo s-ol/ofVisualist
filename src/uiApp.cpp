@@ -26,8 +26,8 @@ void UiApp::setup() {
     { 0x13, "bandWidth" },
   });
 
-  // source = new ExternalVideoSource();
-  source = new SyncedVideoSource("movies/bulbform.avi", midiIn);
+  source = new ExternalVideoSource();
+  // source = new SyncedVideoSource("movies/bulbform.avi", midiIn);
 }
 
 void UiApp::update(){
@@ -40,7 +40,9 @@ void UiApp::draw(){
 
   ofSetColor(0x0);
   preview.draw();
+
   farbblut.draw(source->getTexture(), preview);
+  
   panel.draw();
 }
 
