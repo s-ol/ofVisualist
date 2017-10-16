@@ -2,3 +2,8 @@ bin/ofVisualist*
 bin/*.so
 obj
 *.mp4
+
+ofVisualist.sln
+ofVisualist.vcxproj*
+ofVisualist.VC*
+icon.rc
