@@ -2,9 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-  for (int i = 0; i < COLOR_STEPS; ++i) {
-    colors[i] = ofFloatColor::fromHsb((float)i / COLOR_STEPS, 0.6, 0.6);
-  };
+  for (int i = 0; i < COLOR_STEPS; ++i)
+    colors[i] = ofFloatColor::fromHsb(0, 0, (float)i / COLOR_STEPS);
 
   ofBackground(255, 255, 255);
   ofSetVerticalSync(false);
@@ -34,16 +33,16 @@ void ofApp::setup() {
   plane.mapTexCoords(0, 0, vidGrabber.getWidth(), vidGrabber.getHeight());
   plane.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 0);
 
-  /*
   midiIn = new ofxMidiIn();
   midiIn->listPorts();
   midiIn->openPort(0);
   midiIn->addListener(this);
-  */
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+  if (ofGetElapsedTimef() > nextMidiFix)
+    fixMidi();
   ofBackground(0, 0, 0);
   vidGrabber.update();
   if (!paused)
@@ -93,13 +92,37 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
 void ofApp::exit() {
 }
 
-void ofApp::keyPressed(int key) {
-  if (key != 'r') return;
-    midiIn->closePort();
+void ofApp::fixMidi() {
+  nextMidiFix = ofGetElapsedTimef() + 0.2f;
+  if (midiIn->getPortList().size() <= 0) {
+    if (!midiBroken) {
+      midiIn->closePort();
       midiIn->removeListener(this);
+      midiBroken = true;
+    }
+  } else if (midiBroken) {
+    midiIn = new ofxMidiIn();
+    midiIn->openPort(0);
+    midiIn->addListener(this);
+    midiBroken = false;
+  }
+}
 
-      midiIn = new ofxMidiIn();
-  midiIn->openPort(0);
-  midiIn->addListener(this);
-  ofLogNotice() << "restarted";
+void ofApp::keyPressed(int key) {
+  if (key == 'r') {
+    midiIn->closePort();
+    midiIn->removeListener(this);
+    midiIn = new ofxMidiIn();
+    midiIn->openPort(0);
+    midiIn->addListener(this);
+    ofLogNotice() << "restarted";
+  } else if (key == 'f') {
+    ofToggleFullscreen();
+  } else if (key >= '0' && key <= '9') {
+    int id = key - '0';
+    vidGrabber = ofVideoGrabber();
+    vidGrabber.setDeviceID(id);
+    vidGrabber.setDesiredFrameRate(30);
+    vidGrabber.initGrabber(CAPTURE_RES);
+  }
 }

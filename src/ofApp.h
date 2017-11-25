@@ -33,4 +33,9 @@ class ofApp : public ofBaseApp, public ofxMidiListener {
     ofVideoGrabber      vidGrabber;
     ofShader            shader;
     ofPlanePrimitive    plane;
+
+  protected:
+    void fixMidi();
+    bool midiBroken = false;
+    float nextMidiFix = 0;
 };
