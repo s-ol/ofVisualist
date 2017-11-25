@@ -82,8 +82,28 @@ void ofApp::newMidiMessage(ofxMidiMessage& msg) {
     }
   } else if (msg.status == MIDI_NOTE_ON) {
     switch (msg.pitch) {
-      case 9: paused = !paused; break;
-      case 10: stepMode = !stepMode; break;
+      // rotation controls
+      case 9: paused = !paused; break;  // freeze
+      case 10: speed = -speed; break;   // reverse
+      case 11: time += 1; break;        // jump
+
+      // color modes
+      case 25: // b+w
+        for (int i = 0; i < COLOR_STEPS; ++i)
+          colors[i] = ofFloatColor::fromHsb(0, 0, (float)i / COLOR_STEPS);
+        break;
+      case 26: // black-to-red
+        for (int i = 0; i < COLOR_STEPS; ++i)
+          colors[i] = ofFloatColor::fromHsb(0, 1, (float)i / COLOR_STEPS);
+        break;
+      case 27: // greenblue
+        for (int i = 0; i < COLOR_STEPS; ++i)
+          colors[i] = ofFloatColor::fromHsb(0.4 + 0.2 * sin((float)i / COLOR_STEPS * 24), 0.6, 0.6);
+        break;
+      case 28: // rainbow
+        for (int i = 0; i < COLOR_STEPS; ++i)
+          colors[i] = ofFloatColor::fromHsb((float)i / COLOR_STEPS, 0.6, 0.6);
+        break;
     }
   }
 }
