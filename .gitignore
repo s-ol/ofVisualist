@@ -1,8 +1,12 @@
 bin/ofVisualist*
 bin/*.so
+bin/*.dll
+bin/data/settings.xml
+bin/data/movies
 obj
 *.mp4
 
+.vs
 ofVisualist.sln
 ofVisualist.vcxproj*
 ofVisualist.VC*
