@@ -63,7 +63,6 @@ void ofApp::draw(){
   shader.setUniform1f("lumOff", lumOff);
   shader.setUniform1f("lumTLo", lumTLo);
   shader.setUniform1f("lumTHi", lumTHi);
-  shader.setUniform1i("stepMode", stepMode ? 1 : 0);
   plane.draw();
   shader.end();
   vidGrabber.getTexture().unbind();
@@ -72,7 +71,7 @@ void ofApp::draw(){
 void ofApp::newMidiMessage(ofxMidiMessage& msg) {
   if (msg.status == MIDI_CONTROL_CHANGE) {
     float value = msg.value / 127.0f;
-    float cent = (msg.value - 64) / 64.0f;;
+    float cent = (msg.value - 64) / 64.0f;
     switch (msg.control) {
       case 27: lumMix = value; break;
       case 28: colMix = value; break;
