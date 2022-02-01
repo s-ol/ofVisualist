@@ -1,7 +1,5 @@
 #include "uiApp.h"
 
-// UiApp::UiApp(shared_ptr<EffectApp> effect)
-//   : ofBaseApp(), effect(effect), plane(400, 300, 10, 10) {
 UiApp::UiApp()
   : ofBaseApp(), preview(ofGetWidth() - 220, ofGetHeight(), 10, 10) {
   preview.mapTexCoords(0, 0, 800, 600);
@@ -11,8 +9,13 @@ UiApp::UiApp()
 void UiApp::setup() {
   panel.setup(farbblut.parameters);
 
-  midiIn = new ofxMidiIn("ofVisualist", OFXMIDI_UNIX_JACK);
-  midiIn->openPort(0);
+  midiIn = new ofxMidiIn("ofVisualist", OFXMIDI_WINDOWS_MM);
+  auto list = midiIn->getPortList();
+  auto it = find(list.begin(), list.end(), "ofVisualist");
+  if (it != list.end())
+    midiIn->openPort(std::distance(list.begin(), it));
+  else
+    midiIn->openPort(0);
   midiIn->ignoreTypes(false, false, false);
 
   mapper = new MidiMapper(midiIn, farbblut.parameters, {

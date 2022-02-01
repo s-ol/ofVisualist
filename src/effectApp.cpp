@@ -34,7 +34,7 @@ void EffectApp::setup() {
   plane.mapTexCoords(0, 0, vidGrabber.getWidth(), vidGrabber.getHeight());
   plane.setPosition(ofGetWidth() / 2, ofGetHeight() / 2, 0);
 
-  midiIn = new ofxMidiIn("ofVisualist", OFXMIDI_UNIX_JACK);
+  midiIn = new ofxMidiIn("ofVisualist", OFXMIDI_WINDOWS_MM);
   midiIn->listPorts();
   midiIn->openPort(0);
   midiIn->addListener(this);
